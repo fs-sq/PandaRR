@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>待ち時間計算</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #333;
+      margin-top: 30px;
+    }
+    input[type="number"],
+    input[type="time"],
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      font-size: 18px;
+      font-weight: bold;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🕒 現在時刻</h2>
+    <button onclick="setNow()">現在時刻を取得</button>
+    <p id="nowTime">--:--</p>
+
+    <h2>① 順番が回ってくる時間</h2>
+    <input type="number" id="waitCount" min="0" placeholder="待ち人数を入力">
+    <button onclick="calcTurnTime()">順番が回ってくる時間を表示</button>
+    <p class="result" id="turnTime">--:--</p>
+
+    <h2>② 完了までの所要時間</h2>
+    <input type="time" id="endTime">
+    <button onclick="calcRemainingTime()">所要時間を表示</button>
+    <p class="result" id="remainingTime">--時間 --分</p>
+
+    <button onclick="clearAll()" style="background-color: #dc3545;">クリア</button>
+  </div>
+
+  <script>
+    let now = new Date();
+    let timer = null;
+
+    function updateNowTime() {
+      now = new Date();
+      document.getElementById("nowTime").textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function setNow() {
+      now = new Date();
+      updateNowTime();
+      localStorage.setItem("lastTime", now.toISOString());
+    }
+
+    function loadLastTime() {
+      const lastTime = localStorage.getItem("lastTime");
+      if (lastTime) {
+        now = new Date(lastTime);
+      } else {
+        now = new Date();
+      }
+      updateNowTime();
+    }
+
+    function calcTurnTime() {
+      const count = parseInt(document.getElementById("waitCount").value);
+      if (isNaN(count)) return;
+
+      const minutesToAdd = count * 5;
+      const newTime = new Date(now.getTime() + minutesToAdd * 60000);
+      document.getElementById("turnTime").textContent = newTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function calcRemainingTime() {
+      const input = document.getElementById("endTime").value;
+      if (!input) return;
+
+      const [hh, mm] = input.split(":").map(Number);
+      const target = new Date(now);
+      target.setHours(hh);
+      target.setMinutes(mm);
+
+      let diffMs = target - now;
+      if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+
+      const diffMin = Math.floor(diffMs / 60000);
+      const hours = Math.floor(diffMin / 60);
+      const minutes = diffMin % 60;
+      document.getElementById("remainingTime").textContent = `${hours}時間 ${minutes}分`;
+    }
+
+    function clearAll() {
+      document.getElementById("waitCount").value = "";
+      document.getElementById("endTime").value = "";
+      document.getElementById("turnTime").textContent = "--:--";
+      document.getElementById("remainingTime").textContent = "--時間 --分";
+      localStorage.removeItem("lastTime");
+      updateNowTime();
+    }
+
+    window.onload = function() {
+      loadLastTime();
+      timer = setInterval(updateNowTime, 10000); // 10秒ごとに現在時刻を更新
+    }
+  </script>
+</body>
+</html>
