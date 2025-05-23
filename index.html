@@ -10,6 +10,8 @@
       margin: 0;
       padding: 20px;
       background-color: #f9f9f9;
+      position: relative;
+      min-height: 100vh;
     }
     .container {
       max-width: 500px;
@@ -47,26 +49,36 @@
       font-weight: bold;
       color: #444;
     }
+    .footer-img {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 2cm;
+      height: 2cm;
+      object-fit: contain;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>🕒 現在時刻</h2>
-    <button onclick="setNow()">現在時刻を取得</button>
-    <p id="nowTime">--:--</p>
+    <p class="result" id="nowTime">--:--</p>
 
-    <h2>① 順番が回ってくる時間</h2>
+    <h2>① 大臣待ち人数</h2>
     <input type="number" id="waitCount" min="0" placeholder="待ち人数を入力">
     <button onclick="calcTurnTime()">順番が回ってくる時間を表示</button>
     <p class="result" id="turnTime">--:--</p>
 
-    <h2>② 完了までの所要時間</h2>
+    <h2>② 兵士完了希望時間</h2>
     <input type="time" id="endTime">
-    <button onclick="calcRemainingTime()">所要時間を表示</button>
+    <button onclick="calcRemainingTime()">兵士育成時間</button>
     <p class="result" id="remainingTime">--時間 --分</p>
 
     <button onclick="clearAll()" style="background-color: #dc3545;">クリア</button>
   </div>
+
+  <img src="a.webp" alt="パンダR" class="footer-img">
 
   <script>
     let now = new Date();
